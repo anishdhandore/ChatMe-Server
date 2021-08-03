@@ -1,24 +1,29 @@
 import socket
 import threading
 
-PORT = 5050
-# SERVER = "192.168.0.108"
-SERVER_IP = socket.gethostbyname(socket.gethostname()) # does the same thing. gets ipv4 address for your device
-ADDR = (SERVER_IP, PORT)
+# CONSTANTS
+SERVER = socket.gethostbyname(socket.gethostname())
+PORT = 5051
+ADDR = (SERVER, PORT)
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # setting up the server 
-server.bind(ADDR) # binds the server: ipv4 + port
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(ADDR)
 
-def handle_client(conn, addr):
-    pass
+def clientActivity(conn, addr):
+    print(f"[NEW CONNECTION] {addr} connected")
+    connected = True
+    while connected:
+        msg = conn.recv(1024).decode('utf-8')
+        if msg:
+            print(f"[{addr}] {msg}")
+    conn.close()
 
 def start():
     server.listen()
     while True:
         conn, addr = server.accept()
-        thread = threading.Thread(handle_client, args=(conn, addr))
+        thread = threading.Thread(target=clientActivity, args=(conn, addr))
         thread.start()
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count - 1}")
 
-print("[STARTING] ...")
+print("[LISTENING] kiddos server started...")
 start()
